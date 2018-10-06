@@ -1,0 +1,498 @@
+
+- key: beat
+  title: Beat
+  description: >
+    Contains common beat fields available in all event types.
+  fields:
+
+    - name: beat.name
+      description: >
+        The name of the Beat sending the log messages. If the Beat name is
+        set in the configuration file, then that value is used. If it is not
+        set, the hostname is used. To set the Beat name, use the `name`
+        option in the configuration file.
+    - name: beat.hostname
+      description: >
+        The hostname as returned by the operating system on which the Beat is
+        running.
+    - name: beat.timezone
+      description: >
+        The timezone as returned by the operating system on which the Beat is
+        running.
+    - name: beat.version
+      description: >
+        The version of the beat that generated this event.
+
+    - name: "@timestamp"
+      type: date
+      required: true
+      format: date
+      example: August 26th 2016, 12:35:53.332
+      description: >
+        The timestamp when the event log record was generated.
+
+    - name: tags
+      description: >
+        Arbitrary tags that can be set per Beat and per transaction
+        type.
+
+    - name: fields
+      type: object
+      object_type: keyword
+      description: >
+        Contains user configurable fields.
+
+    - name: error
+      type: group
+      description: >
+        Error fields containing additional info in case of errors.
+      fields:
+        - name: message
+          type: text
+          description: >
+            Error message.
+        - name: code
+          type: long
+          description: >
+            Error code.
+        - name: type
+          type: keyword
+          description: >
+            Error type.
+- key: host
+  title: Host
+  description: >
+    Info collected for the host machine.
+  anchor: host-processor
+  fields:
+    - name: host
+      type: group
+      fields:
+        - name: name
+          type: keyword
+          description: >
+            Hostname.
+        - name: id
+          type: keyword
+          description: >
+            Unique host id.
+        - name: architecture
+          type: keyword
+          description: >
+            Host architecture (e.g. x86_64, arm, ppc, mips).
+        - name: os.platform
+          type: keyword
+          description: >
+            OS platform (e.g. centos, ubuntu, windows).
+        - name: os.version
+          type: keyword
+          description: >
+            OS version.
+        - name: os.family
+          type: keyword
+          description: >
+            OS family (e.g. redhat, debian, freebsd, windows).
+        - name: ip
+          type: ip
+          description: >
+            List of IP-addresses.
+        - name: mac
+          type: keyword
+          description: >
+            List of hardware-addresses, usually MAC-addresses.
+
+- key: log
+  title: Log file content
+  description: >
+    Contains log file lines.
+  fields:
+    - name: source
+      type: keyword
+      required: true
+      description: >
+        The file from which the line was read. This field contains the absolute path to the file.
+        For example: `/var/log/system.log`.
+
+    - name: offset
+      type: long
+      required: false
+      description: >
+        The file offset the reported line starts at.
+
+    - name: message
+      type: text
+      ignore_above: 0
+      required: true
+      description: >
+        The content of the line read from the log file.
+
+    - name: stream
+      type: keyword
+      required: false
+      description: >
+        Log stream when reading container logs, can be 'stdout' or 'stderr'
+
+    - name: prospector.type
+      required: true
+      description: >
+        The input type from which the event was generated. This field is set to the value specified
+        for the `type` option in the input section of the Filebeat config file. (DEPRECATED: see `input.type`)
+
+    - name: input.type
+      required: true
+      description: >
+        The input type from which the event was generated. This field is set to the value specified
+        for the `type` option in the input section of the Filebeat config file.
+
+    - name: read_timestamp
+      description: >
+        In case the ingest pipeline parses the timestamp from the log contents, it stores
+        the original `@timestamp` (representing the time when the log line was read) in this
+        field.
+
+    - name: fileset.module
+      description: >
+        The Filebeat module that generated this event.
+
+    - name: fileset.name
+      description: >
+        The Filebeat fileset that generated this event.
+
+    - name: syslog.facility
+      type: long
+      required: false
+      description: >
+        The facility extracted from the priority.
+
+    - name: syslog.priority
+      type: long
+      required: false
+      description: >
+        The priority of the syslog event.
+
+    - name: syslog.severity_label
+      type: keyword
+      required: false
+      description: >
+        The human readable severity.
+
+    - name: syslog.facility_label
+      type: keyword
+      required: false
+      description: >
+        The human readable facility.
+
+    - name: process.program
+      type: keyword
+      required: false
+      description: >
+        The name of the program.
+
+    - name: process.pid
+      type: long
+      required: false
+      description: >
+        The pid of the process.
+
+    - name: event.severity
+      type: long
+      required: false
+      description: >
+        The severity of the event.
+
+    - name: service.name
+      type: keyword
+      description: >
+        Service name.
+
+    - name: log.level
+      type: keyword
+      description: >
+        Logging level.
+
+    - name: event.created
+      type: date
+      description: >
+        event.created contains the date on which the event was created. In case of
+        log events this is when the log line was read by Filebeat. In comparison
+        @timestamp is the processed timestamp from the log line. If both are identical
+        only @timestamp should be used.
+
+    - name: http.response.status_code
+      type: long
+      description: >
+        HTTP response status_code.
+      example: 404
+
+    - name: http.response.elapsed_time
+      type: long
+      description: >
+        Elapsed time between request and response in milli seconds.
+
+    - name: http.response.content_length
+      type: long
+      description: >
+        Content length of the HTTP response body.
+
+    - name: http.request.method
+      type: keyword
+      description: >
+        Request method.
+- key: iis
+  title: "IIS"
+  description: >
+    Module for parsing IIS log files.
+  fields:
+    - name: iis
+      type: group
+      description: >
+        Fields from IIS log files.
+      fields:
+        - name: access
+          type: group
+          description: >
+            Contains fields for IIS access logs.
+          fields:
+            - name: server_ip
+              type: keyword
+              description: >
+                The server IP address.
+            - name: method
+              type: keyword
+              example: GET
+              description: >
+                The request HTTP method.
+            - name: url
+              type: keyword
+              description: >
+                The request HTTP URL.
+            - name: url_part
+              type: keyword
+              description: >
+                The request HTTP URL parts.
+            - name: query_string
+              type: keyword
+              description: >
+                The request query string, if any.
+            - name: port
+              type: long
+              description: >
+                The request port number.
+            - name: user_name
+              type: keyword
+              description: >
+                The user name used when basic authentication is used.
+            - name: remote_ip
+              type: keyword
+              description: >
+                The client IP address.
+            - name: referrer
+              type: keyword
+              description: >
+                The HTTP referrer.
+            - name: referrer_host
+              type: keyword
+              description: >
+                The HTTP referrer (only HOST).
+            - name: response_code
+              type: long
+              description: >
+                The HTTP response code.
+            - name: sub_status
+              type: long
+              description: >
+                The HTTP substatus code.
+            - name: win32_status
+              type: long
+              description: >
+                The Windows status code.
+            - name: request_time_ms
+              type: long
+              description: >
+                The request time in milliseconds.
+            - name: site_name
+              type: keyword
+              description: >
+                The site name and instance number.
+            - name: server_name
+              type: keyword
+              description: >
+                The name of the server on which the log file entry was generated.
+            - name: http_version
+              type: keyword
+              description: >
+                The HTTP version.
+            - name: cookie
+              type: keyword
+              description: >
+                The content of the cookie sent or received, if any.
+            - name: hostname
+              type: keyword
+              description: >
+                The host header name, if any.
+            - name: body_sent.bytes
+              type: long
+              format: bytes
+              description: >
+                The number of bytes of the server response body.
+            - name: body_received.bytes
+              type: long
+              format: bytes
+              description: >
+                The number of bytes of the server request body.
+            - name: agent
+              type: text
+              description: >
+                Contains the un-parsed user agent string. Only present if the user
+                agent Elasticsearch plugin is not available or not used.
+            - name: user_agent
+              type: group
+              description: >
+                Contains the parsed user agent field. Only present if the user
+                agent Elasticsearch plugin is available and used.
+              fields:
+                - name: device
+                  type: keyword
+                  description: >
+                    The name of the physical device.
+                - name: major
+                  type: long
+                  description: >
+                    The major version of the user agent.
+                - name: minor
+                  type: long
+                  description: >
+                    The minor version of the user agent.
+                - name: patch
+                  type: keyword
+                  description: >
+                    The patch version of the user agent.
+                - name: name
+                  type: keyword
+                  example: Chrome
+                  description: >
+                    The name of the user agent.
+                - name: os
+                  type: keyword
+                  description: >
+                    The name of the operating system.
+                - name: os_major
+                  type: long
+                  description: >
+                    The major version of the operating system.
+                - name: os_minor
+                  type: long
+                  description: >
+                    The minor version of the operating system.
+                - name: os_name
+                  type: keyword
+                  description: >
+                    The name of the operating system.
+            - name: geoip
+              type: group
+              description: >
+                Contains GeoIP information gathered based on the remote_ip field.
+                Only present if the GeoIP Elasticsearch plugin is available and
+                used.
+              fields:
+                - name: continent_name
+                  type: keyword
+                  description: >
+                    The name of the continent.
+                - name: country_iso_code
+                  type: keyword
+                  description: >
+                    Country ISO code.
+                - name: location
+                  type: geo_point
+                  description: >
+                    The longitude and latitude.
+                - name: region_name
+                  type: keyword
+                  description: >
+                    The region name.
+                - name: city_name
+                  type: keyword
+                  description: >
+                    The city name.
+                - name: region_iso_code
+                  type: keyword
+                  description: >
+                    Region ISO code.
+        - name: error
+          type: group
+          description: >
+            Contains fields for IIS error logs.
+          fields:
+            - name: remote_ip
+              type: keyword
+              description: >
+                The client IP address.
+            - name: remote_port
+              type: long
+              description: >
+                The client port number.
+            - name: server_ip
+              type: keyword
+              description: >
+                The server IP address.
+            - name: server_port
+              type: long
+              description: >
+                The server port number.
+            - name: http_version
+              type: keyword
+              description: >
+                The HTTP version.
+            - name: method
+              type: keyword
+              example: GET
+              description: >
+                The request HTTP method.
+            - name: url
+              type: keyword
+              description: >
+                The request HTTP URL.
+            - name: response_code
+              type: long
+              description: >
+                The HTTP response code.
+            - name: reason_phrase
+              type: keyword
+              description: >
+                The HTTP reason phrase.
+            - name: queue_name
+              type: keyword
+              description: >
+                The IIS application pool name.
+            - name: geoip
+              type: group
+              description: >
+                Contains GeoIP information gathered based on the remote_ip field.
+                Only present if the GeoIP Elasticsearch plugin is available and
+                used.
+              fields:
+                - name: continent_name
+                  type: keyword
+                  description: >
+                    The name of the continent.
+                - name: country_iso_code
+                  type: keyword
+                  description: >
+                    Country ISO code.
+                - name: location
+                  type: geo_point
+                  description: >
+                    The longitude and latitude.
+                - name: region_name
+                  type: keyword
+                  description: >
+                    The region name.
+                - name: city_name
+                  type: keyword
+                  description: >
+                    The city name.
+                - name: region_iso_code
+                  type: keyword
+                  description: >
+                    Region ISO code.
